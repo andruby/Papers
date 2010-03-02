@@ -27,6 +27,7 @@
 \maketitle
 
 \begin{abstract}
+As the number of components in cluster-based systems increase, cost and power consumption increase as well. One way to reduce both problems is reducing the amount of components in the interconnection networks. Critical to the usability of networks with less components are management systems that eliminate HOL blocking during situations of congestion. This paper ..
 TODO
 \end{abstract}
 
@@ -187,7 +188,16 @@ This fact can lead RECN to introduce HOL blocking. Indeed, flows not belonging t
 
 The second enhancement proposal is to accept all the notifications regardless whether they are more or less specific. In order to deal with out of order issues, when a new SAQ is allocated due to a more specific notification, it must be blocked (must not send packets) until all the packets stored in the SAQ associated to the less specific notification (when the new SAQ is allocated) leave the queue. This can be accomplished by placing a pointer to the new allocated SAQ in the “old” SAQ.
 
-Both enhancements introduced to RECN allow it to detect congestion at ingress ports and allow the system to correctly accommodate for movements of the root switch that are traditionally not taken in to consideration.
+Both enhancements introduced to RECN allow it to detect congestion at ingress ports and allow the system to correctly accommodate for movements of the root switch that are traditionally not taken in to consideration. Performance evaluations that highlight the gains provided by these enhancements are reported in section~\ref{S:performance} on page~\pageref{S:performance}.
+
+\subsection{FBICM: Flow-Based Implicit Congestion Management}\label{S:fbicm}
+
+An essential requirement for any RECN implementation is the use of source-based routing where the entire path of a packet is encoded in its header. RECN identifies congested packets by comparing the explicit route stored in the header of each packet to explicit routes leading to congested points. This limitation prevents RECN from being applied in any network technology that uses table-based, distributed routing, like Infiniband~\cite{infiniband}, a high-performance interconnection technology becoming increasingly popular in cluster-based systems.
+
+Flow-Based Implicit Congestion Management (FBICM) was developed in order to bridge this significant technical gap. As RECN, it is able to eliminate HOL blocking produced by congested flows, but it can be employed in networks implementing table-based, distributed deterministic routing. FBICM uses the same basic principles as RECN: detect congested packets and separate them from non-congested ones. The main differences between FBCIM and RECN are: 
+
+1. Congested points are not addressed by means of explicit routes. Instead, FBICM identifies congested points implicitly, by keeping track of the different flows passing through these points.2. Congested packets are not identified as packets following an explicit route to a congested point, but as packets belonging to flows involved in a congested situation. 
+3. Congestion information is associated to destinations where as in RECN it is associatedto internal network points.
 
 \section{Performance evaluation}\label{S:performance}
 
