@@ -13,6 +13,9 @@
 \usepackage[pdftex,bookmarks=true,pdfborder={0 0 0}]{hyperref}
 \geometry{a4paper}
 
+%% unbreakable words
+\hyphenation{VOQsw RECN FBCIM}
+
 \title{Congestion Control in Multistage Interconnection Networks}
 \author{Andrew Fecheyr Lippens}
 \date{}
@@ -21,14 +24,8 @@
 \begin{document}
 \input{title}
 
-\newpage
-\mbox{}
-
-\maketitle
-
 \begin{abstract}
-As the number of components in cluster-based systems increase, cost and power consumption increase as well. One way to reduce both problems is reducing the amount of components in the interconnection networks. Critical to the usability of networks with less components are management systems that eliminate HOL blocking during situations of congestion. This paper ..
-TODO
+As the number of components in cluster-based systems increase, cost and power consumption increase as well. One way to reduce both problems is reducing the amount of components in the interconnection networks. Critical to the usability of networks with less components are management systems that eliminate HOL blocking during situations of congestion. This paper starts by exploring research concerning the dynamics of congestion trees and introduces three previously developed mechanisms that solve the negative side-effects caused by them.
 \end{abstract}
 
 \setcounter{tocdepth}{2}
@@ -46,10 +43,10 @@ Interconnection networks in large parallel computers and computer clusters are b
 
 Historically interconnection networks have been overdimensioned to cope with peak burst traffic. This overcapacity effectively prevented congestion of the links. However, the increasing cost and power hunger of high link speed interconnects is forcing system designers to rethink their strategy. An effective way to reduce cost and power consumption is reducing the number of network components and increasing their utilization. However, this solution will increase network contention that may lead to congestion situations. In general, congestion will quickly spread through the network due to flow control and form congestion trees. The major negative effect of these situations happens when packets blocked due to congestion prevent the advance of other packets in the same queue. This effect, referred to as head-of-line blocking, is explained in section~\ref{S:hol_blocking}.
 
-Herefore, reducing the number of network components without a suitable congestion management mechanism may lead to dramatic throughput degradation when the network enters saturation.
+Therefore, reducing the number of network components without a suitable congestion management mechanism may lead to dramatic throughput degradation when the network enters saturation.
 This paper explores previously published research on the subject of congestion in lossless networks and summarizes proposed techniques to control it.
 
-Before we continue with the related works we explain some technical terms in section~\ref{S:terms} and in section~\ref{S:hol_blocking} we dig a little deeper in what causes performance degradation in congestion trees: head-of-line blocking.
+Before we continue with the related works we explain some technical terms in section~\ref{S:terms} and in section~\ref{S:hol_blocking} we dig a little deeper in what causes performance degradation in congestion trees: head-of-line blocking. Section~\ref{S:evolution} explores the dynamic evolution of congestion trees and its effects on congestion management while section~\ref{S:solutions} introduces three mechanism to eliminate head-of-line blocking: basic RECN, enhanced RECN and FBCIM.
 
 \subsection{Technical terms}\label{S:terms}
 This paper uses technical terms from the domain of computer networks. Some of them are explained here to help the reader.
@@ -58,7 +55,7 @@ This paper uses technical terms from the domain of computer networks. Some of th
 
 \item[Multistage interconnection networks (MINs)] are a class of high-speed computer networks usually composed of processing elements on one end of the network and memory elements and/or other processing elements on the other end, connected together by switching elements. The switching elements themselves are usually connected to each other in stages. MINs are often used as Network-on-a-Chip and in computer clusters to connect the individual nodes. The lossless nature of these networks makes them quite different from the regular lossy networks that make up the internet.
 
-\item[Congestion trees:] In a lossless network, when the input flows arriving at a switch are higher than the output flows the switch buffers will completely fill up. This is called congestion. Flow control mechanisms (such as stop-and-go, or credit based systems) propagate this congestion to throughout the network, following the reversal path of the flows contributing to congestion~\cite{paper1}. This is called a congestion tree. The switch where the congestion originated is referred to the root of the tree and the endpoints as the leaves. 
+\item[Congestion trees:] In a lossless network, when the input flows arriving at a switch are higher than the output flows the switch buffers will completely fill up. This is called congestion. Flow control mechanisms (such as stop-and-go, or credit based systems) propagate this congestion to throughout the network, following the reversal path of the flows contributing to congestion~\cite{paper1}. This is called a congestion tree. The switch where the congestion originated is referred to as the root of the tree and the endpoints as the leaves. 
 
 \end{description}
 
@@ -86,6 +83,8 @@ Prevention based strategies control traffic in a way that congestion trees shoul
 Detection based strategies, also referred to as reactive strategies~\cite{paper2}, allow the forming of congestion trees. They detect these formations and activate a control mechanism in order to solve the problem.  Detection is usually based on feedback information. For instance, it is possible to measure the switch buffer occupancy~\cite{LSC95,V00} or the amount of memory access requests~\cite{SS90} in order to detect congestion. When congestion is detected the sources injecting traffic into the network are notified to reduce or stop the injection. There is a large amount of research in this area that can be categorized into several subclasses. Some solutions broadcast notifications to all the sources~\cite{TLM01, V00}. These solutions consume a large fraction of the bandwidth for notification which makes them very inefficient. Other solutions send notifications only to the sources contributing to the congestion~\cite{KLC97}, making them more efficient. However, none of these solutions scales because as network size and/or link bandwidth increase, the effective delay between congestion detection and reaction (and the number of injected packets during that time) increases linearly. This results in slow response and/or typical oscillations that arise in closed-loop control systems with delays in the feedback loop. Both of these translate into significant performance degradation. Moreover, these limitations are due to physical constraints as notifications cannot propagate faster than the speed of light, thus being unavoidable. Hence, reactive congestion management alone may not be appropriate for large future systems with long round trip times.
 
 The only scalable reactive congestion management strategies are those that react locally by reducing/stopping injection at the endpoints attached to the switch where congestion is detected~\cite{BLD01, LD93}. Although those techniques have been reported to achieve good results with synthetic traffic where all the nodes have the same injection rate, they may fail under real traffic because sources contributing to congestion are usually different from those that are throttled.
+
+In the next section we will explore the dynamics of congestion trees in order to better understand their growth and how they impact performance. Moreover, insights gained by the research performed in that area was key to the development of enhancements applied to the basic mechanism we describe later on.
 
 \section{Dynamic Evolution of Congestion Trees}\label{S:evolution}
 
@@ -121,13 +120,13 @@ This effect may also occur at several points along a congestion tree. In figure~
 
 In the previous scenario it was assumed that all the flows were injecting packets at the same rate and started at the same time. This can happen in some cases, such as a barrier synchronization among different processes in a multiprocessor system, but often is not so. Scenarios may arise where different flows contributing to the same congestion tree start at different times and inject at different rates. The authors in~\cite{paper1} describe the more sophisticated dynamics of these scenarios.
 
-They show that the root of a congestion tree may move downstream by the addition of new flows, or upstream by the collapse of some branches. Also, congestion trees may overlap at several network points without merging. And finally, a congestion tree may be formed from local and transient congestion trees that will later merge due to the limited speedup. Therefore, for all of these cases some kind of architectural support is needed in order to separate each congestion tree and to follow the complex dynamics they may exhibit. 
+They show that the root of a congestion tree may move upstream by the collapse of some branches, or downstream by the addition of new flows. The latter is illustrated in figure~\ref{fig:congestion_dynamics}.b. Also, congestion trees may overlap at several network points without merging. And finally, a congestion tree may be formed from local and transient congestion trees that will later merge due to the limited speedup. Therefore, for all of these cases some kind of architectural support is needed in order to separate each congestion tree and to follow the complex dynamics they may exhibit. 
 
 Now that the dynamics of congestion trees have been explored a bit deeper, we can describe techniques proposed to solve their negative effects.
 
 \section{Proposed Solutions}\label{S:solutions}
 
-TODO: inleiden
+In this section we describe three proposed solutions that effectively eliminate HOL blocking and with it, the negative impact of congestion trees on network throughput. First we present a summary of the basic RECN technique by J. Duato et al.~\cite{paper2}. This technique was enhanced by P.J. Garc\'ia et al. in~\cite{paper1}. We state the two enhancements they developed and their achieved performance improvements. Finally this paper includes a brief overview of FBCIM, an adaptation of the RECN approach for networks with table-based, distributed routing~\cite{paper3}. 
 
 \subsection{Basic RECN}\label{S:basic_recn}
 
@@ -141,9 +140,9 @@ The congestion detection mechanism is simple, fast and accurately identifies the
 
 \subsubsection{Congestion Notification and Queue Allocation}
 
-When congestion notifications are received at some input port, a set aside queue (SAQ) is locally allocated for the packets leading to the congested output port. All the incoming packets that request the congested output port will be stored in that SAQ, thus preventing them from blocking other packets stored in the main queue for that input port.
+When congestion notifications are received at some input port, a \emph{set aside queue (SAQ)} is locally allocated for the packets leading to the congested output port. All the incoming packets that request the congested output port will be stored in that SAQ, thus preventing them from blocking other packets stored in the main queue for that input port.
 
-Path information is stored in a CAM. Each CAM line contains the path information associated with the corresponding SAQ. The reason for using a CAM is that the switch has to check the destination address field in the header of every incoming data packet and compare it against all the path informations stored in the CAM to determine whether this packet is going to cross the root of some congestion tree. In such a case, it will be stored in the corresponding SAQ. It should be noted that packets from uncongested flows that will use the same output port at the current switch as other packets from congested flows will not match any CAM line, and therefore, will not be stored in any SAQ, thus avoiding HOL blocking. It should be noted that two congestion trees may overlap. Moreover, one of them could be a subtree of the other tree. All of these cases are automatically solved when using a CAM to store path information and incoming notification packets are matched against it.
+Path information is stored in a \emph{content addressable memory (CAM)}. Each CAM line contains the path information associated with the corresponding SAQ. The reason for using a CAM is that the switch has to check the destination address field in the header of every incoming data packet and compare it against all the path informations stored in the CAM to determine whether this packet is going to cross the root of some congestion tree. In such a case, it will be stored in the corresponding SAQ. It should be noted that packets from uncongested flows that will use the same output port at the current switch as other packets from congested flows will not match any CAM line, and therefore, will not be stored in any SAQ, thus avoiding HOL blocking. It is possible that two congestion trees overlap. Moreover, one of them could be a subtree of the other tree. All of these cases are automatically solved when using a CAM to store path information and incoming notification packets are matched against it.
 
 Figure~\ref{fig:cam} shows the CAM structure required to store path information in a switch for PCI Express Advanced Switching\footnote{AS is an open standard for fabric-interconnection technologies developed by the ASI Special Interest Group~\cite{AS}.}. RECN benefits from the routing mechanisms found in AS. In particular, AS uses source deterministic routing. The AS header includes a turn pool made up of 31 bits that contains all the turns (offset from the incoming port to the outgoing port) for every switch along the path. An advantage of this routing method is that it allows to address a particular network point from any other point in the network. Thus, a switch, by inspecting the appropriate turnpool bits of a packet, can know in advance if it will pass through a particular network point.
 
@@ -162,7 +161,7 @@ RECN keeps track (with a control bit on each CAM line) of the network points tha
 
 \subsection{Enhanced RECN}\label{S:enhancedrecn}
 
-In~\cite{paper2} the authors propose two enhancements to RECN. Both enhancements allow RECN to keep track of the dynamics of congestion trees, and thereby, significantly increase performance.
+In~\cite{paper2} the authors propose two enhancements to RECN. Both enhancements allow RECN to keep track of the dynamics of congestion trees explored in section~\ref{S:evolution}, and thereby, significantly increase performance.
 
 The first enhancement is allowing RECN to detect congestion at switch ingress ports. Basic RECN defines SAQs at ingress and egress ports, but it only detects congestion at egress ports. However, Section~\ref{S:switch_arch} on page~\pageref{S:switch_arch} shows that congestion may first occur at ingress ports. In these cases, basic RECN never detects congestion at the root. Instead, it detects congestion at the immediate upstream switches, but only when the root ingress queues are full. So, RECN will not react quickly to eliminate HOL blocking at an important part of the tree. 
 
@@ -173,7 +172,7 @@ The first enhancement is allowing RECN to detect congestion at switch ingress po
 		\label{fig:recn1}
 \end{figure}
 
-The first enhancement is accomplished by replacing the normal queue at each ingress port by a set of small buffers (referred to as detection queues). At ingress ports the memory is now shared by detection queues and SAQs. The detection queues are structured at the switch level: there are as many detection queues as output ports in the switch, and packets heading to a particular output port are directed to the associated detection queue. By doing this, when a detection queue fills over a given threshold, congestion is detected, and the output port causing the congestion is easily computed as the port associated with that detection queue. Once congestion is detected at an ingress port, a new SAQ is allocated at this port, and the turnpool identifying the output port causing congestion is stored in the CAM line. The detection queue where congestion is detected and the SAQ allocated are swapped. As the new SAQ can now be considered to be congested, a notification is sent upstream. Figure~\ref{fig:recn1} shows the proposed mechanism.
+The first enhancement is accomplished by replacing the normal queue at each ingress port by a set of small buffers (referred to as detection queues). So, at ingress ports the memory is now shared by detection queues and SAQs. The detection queues are structured at the switch level: there are as many detection queues as output ports in the switch, and packets heading to a particular output port are directed to the associated detection queue. By doing this, when a detection queue fills over a given threshold, congestion is detected, and the output port causing the congestion is easily computed as the port associated with that detection queue. Once congestion is detected at an ingress port, a new SAQ is allocated at this port, and the turnpool identifying the output port causing congestion is stored in the CAM line. The detection queue where congestion is detected and the SAQ allocated are swapped. As the new SAQ can now be considered to be congested, a notification is sent upstream. Figure~\ref{fig:recn1} shows the proposed mechanism.
 
 \begin{figure}[ht]
 	\centering
@@ -188,30 +187,72 @@ This fact can lead RECN to introduce HOL blocking. Indeed, flows not belonging t
 
 The second enhancement proposal is to accept all the notifications regardless whether they are more or less specific. In order to deal with out of order issues, when a new SAQ is allocated due to a more specific notification, it must be blocked (must not send packets) until all the packets stored in the SAQ associated to the less specific notification (when the new SAQ is allocated) leave the queue. This can be accomplished by placing a pointer to the new allocated SAQ in the “old” SAQ.
 
-Both enhancements introduced to RECN allow it to detect congestion at ingress ports and allow the system to correctly accommodate for movements of the root switch that are traditionally not taken in to consideration. Performance evaluations that highlight the gains provided by these enhancements are reported in section~\ref{S:performance} on page~\pageref{S:performance}.
+Both enhancements introduced to RECN allow it to detect congestion at ingress ports and allow the system to correctly accommodate for movements of the root switch that are traditionally not taken into consideration. Performance evaluations that highlight the gains provided by these enhancements are reported in section~\ref{S:recn_perf} on page~\pageref{S:recn_perf}.
 
 \subsection{FBICM: Flow-Based Implicit Congestion Management}\label{S:fbicm}
 
 An essential requirement for any RECN implementation is the use of source-based routing where the entire path of a packet is encoded in its header. RECN identifies congested packets by comparing the explicit route stored in the header of each packet to explicit routes leading to congested points. This limitation prevents RECN from being applied in any network technology that uses table-based, distributed routing, like Infiniband~\cite{infiniband}, a high-performance interconnection technology becoming increasingly popular in cluster-based systems.
 
-Flow-Based Implicit Congestion Management (FBICM) was developed in order to bridge this significant technical gap. As RECN, it is able to eliminate HOL blocking produced by congested flows, but it can be employed in networks implementing table-based, distributed deterministic routing. FBICM uses the same basic principles as RECN: detect congested packets and separate them from non-congested ones. The main differences between FBCIM and RECN are: 
+Flow-Based Implicit Congestion Management (FBICM) was developed in order to bridge this significant technical gap. As RECN, it is able to eliminate HOL blocking produced by congested flows, but it can be employed in networks implementing table-based, distributed deterministic routing. FBICM uses the same basic principles as RECN: detect congested packets and separate them from non-congested ones. The main differences between FBCIM and RECN are:
 
-1. Congested points are not addressed by means of explicit routes. Instead, FBICM identifies congested points implicitly, by keeping track of the different flows passing through these points.2. Congested packets are not identified as packets following an explicit route to a congested point, but as packets belonging to flows involved in a congested situation. 
-3. Congestion information is associated to destinations where as in RECN it is associatedto internal network points.
+\newcounter{qcounter}
+\begin{list}{\arabic{qcounter}.~}{\usecounter{qcounter}}
+\item Congested points are not addressed by means of explicit routes. Instead, FBICM identifies congested points implicitly, by keeping track of the different flows passing through these points.
+\item Congested packets are not identified as packets following an explicit route to a congested point, but as packets belonging to flows involved in a congested situation.
+\item Congestion information is associated to destinations where as in RECN it is associatedto internal network points.
+\end{list}
+
+For a detailed description of FBCIM, including switch architecture and operation examples, please refer to~\cite{paper3}. The paper further describes how implicit information about congested points can be stored and propagated (once congestion is detected) without requiring explicit routes, and how packets belonging to congested flows can be identified taking into account just their destination.
 
 \section{Performance evaluation}\label{S:performance}
 
+The original performance analysis of basic RECN was revealed in~\cite{paper2}, the improvements introduced by the enhanced RECN in~\cite{paper1} and the original authors of FBCIM uncovered their benchmark results in~\cite{paper3}. All three used a custom developed detailed event-driven simulator that allowed them to model the network at the register transfer level. For a thorough description of the simulator we recommend section 5.1 of~\cite{paper1}.
+
+As all three papers elaborate their performance evaluation to a great detail, we only present the general facts and highlight some interesting outcomes.
+
+\subsection{RECN performance}\label{S:recn_perf}
+
+RECN was tested with two different scenarios: using well-defined synthetic traffic patterns and using I/O traces provided by Hewlett-Packard Labs\footnote{HP Storage Systems Program, \url{http://www.hpl.hp.com/research/ssp/software/}.}. 
+
+Figure~\ref{fig:recn_perf_1} shows interesting results for basic RECN, enhanced RECN and VOQsw (Virtual Output Queuing at switch level). A crossbar speedup of 1.5 is used. Time is plotted on the horizontal axis, while network throughput is displayed on the vertical axis. It can be noticed that the basic RECN mechanism starts to degrade performance as throughput drops from 44 bytes/ns to 37 bytes/ns. However, when the congestion tree disappears, performance recovers, although exhibiting a significant oscillation, due to the fact that HOL blocking is not completely eliminated. On the other hand, enhanced RECN behaves optimally as it tolerates the congestion tree with no performance degradation. 
+
+\begin{figure}[ht]
+	\centering
+		\includegraphics[scale=1.5]{recn_perf_1.pdf}
+		\caption{Network throughput with 1.5 speedup for RECN and VOQsw}
+		\label{fig:recn_perf_1}
+\end{figure}
+
+Taking the throughput results of VOQsw as a reference, it can be deduced that both RECN versions handle the congestion caused by this specific traffic case very well, whereas the performance achieved by VOQsw is quite poor. Looking at both the performance of basic and enhanced RECN, we can conclude that the use of any of them virtually eliminates HOL blocking and that they perform a lot better than the reference VOQsw.
+
+Figure~\ref{fig:recn_perf_2} highlights a situation where the enhancements proposed to RECN are clearly beneficial. It depicts the throughput of the SAN\footnote{Storage Area Network} traces provided by HP, using no speedup when a sudden congestion tree forms. As can be observed, the basic RECN suffers from severe degradation: network throughput drops from  44 bytes/ns to 10 bytes/ns (a 77\% drop). Also noticeable is the fact that basic RECN recovery time is quite excessive and that it never fully recovers. Enhanced RECN on the other hand is able to withstand the absence of speedup and the dynamics of congestion trees, achieving maximum performance. It seems to handle this workload without a hitch by completely eliminates HOL blocking, even at the ingress ports.
+
+\begin{figure}[ht]
+	\centering
+		\includegraphics[scale=1.5]{recn_perf_2.pdf}
+		\caption{Network throughput without speedup for SAN traces.}
+		\label{fig:recn_perf_2}
+\end{figure}
+
+Further test in~\cite{paper2} reveal that for large networks (${2048 \times 2048}$ MINs) the effects of the enhanced RECN are even more pronounced. Again, the interested reader caring for the full picture should consult the entire results.
+
+\subsection{FBCIM performance}\label{S:fbcim_perf}
+
+The evaluation of FBCIM in~\cite{paper3} states that maximum performance is achieved by FBICM regardless of network size or traffic pattern, even in congestion situations. Virtual Output Queues at network level (VOQNet) obtains similar results than FBICM, but requires far more resources, especially in large networks. VOQSw consumes similar resources than FBICM, but its performance is poor in hot-spot traffic situations, regardless of network size. As can be expected, results for FBICM are similar to the RECN ones, but in a different interconnect context. We refer to~\cite{paper3} for the full evaluation.
 
 \section{Conclusion}\label{S:conclusion}
 
+This paper started by explored the complex nature of the formation of congestion trees in networks with CIOQ switches. It presented examples showing that, contrary to the common belief, a congestion tree can grow in a variety of ways, depending on switch architecture (crossbar speedup) and traffic load. 
 
-\newpage
+We also showed that congestion situations are a serious threat to the performance of interconnection networks. In these situations, packet flows contributing to congestion slow the advance of other flows due to HOL blocking, effectively degrading overall network performance. Many techniques have been proposed to solve this problem. Basic RECN accomplishes decent results, and with the enhancements described in section~\ref{S:enhancedrecn} it achieves great performance by eliminating HOL blocking in a truly efficient and scalable way. 
+
+Since RECN requires the use of deterministic source routing, networks using table-based, distributed deterministic routing cannot benefit from a RECN implementation. For these types of networks FBCIM offers an equally performing solution. The performance of FBCIM is on par with the RECN and far better than other solutions. 
 
 \begin{thebibliography}{99}
 
-\bibitem{paper1} P.J. Garc\'ia, J. Flich, J. Duato, I. Johnson, F.J. Quiles, F. Naven, \emph{Dynamic Evolution of Congestion Trees: Analysus and Impact on Switch Architecture}, 2005.
-
 \bibitem{paper2} J. Duato, I. Johnson, J. Flich, F. Naven, P. Garc\'ia, and T. Nachiondo \emph{A New Scalable and Cost-Effective Congestion Management Strategy for Lossless Multistage Interconnection Networks}, 2005.
+
+\bibitem{paper1} P.J. Garc\'ia, J. Flich, J. Duato, I. Johnson, F.J. Quiles, F. Naven, \emph{Dynamic Evolution of Congestion Trees: Analysus and Impact on Switch Architecture}, 2005.
 
 \bibitem{paper3} J. Escudero-Sahuquillo, P.J. Garc\'ia, F.J.  Quiles, J. Flich, and J. Duato, \emph{FBICM: Efficient Congestion Management for High-Performance Networks Using Distributed Deterministic Routing}, 2008.
 
@@ -256,8 +297,8 @@ Architecture, pp. 91--102, Feb. 2003.
 
 \bibitem{KM04} V. Krishnan and D. Mayhew, \emph{A Localized Congestion Control Mechanism for PCI Express Advanced Switching Fabrics}, in Proc. 12th IEEE Symp. on Hot Interconnects, Aug. 2004.
 
-\bibitem{AS} \emph{Advanced Switching for the PCI Express Architecture}. White paper. Available at
-url{http://www.intel.com/technology/pciex press/devnet/AdvancedSwitching.pdf}
+\bibitem{AS} \emph{Advanced Switching for the PCI Express Architecture}. White paper.\\
+Available at \url{http://www.intel.com/technology/pciex press/devnet/AdvancedSwitching.pdf}
 
 \end{thebibliography}
 
