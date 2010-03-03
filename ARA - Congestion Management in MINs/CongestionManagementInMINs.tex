@@ -48,7 +48,7 @@ This paper explores previously published research on the subject of congestion i
 
 Before we continue with the related works we explain some technical terms in section~\ref{S:terms} and in section~\ref{S:hol_blocking} we dig a little deeper in what causes performance degradation in congestion trees: head-of-line blocking. Section~\ref{S:evolution} explores the dynamic evolution of congestion trees and its effects on congestion management while section~\ref{S:solutions} introduces three mechanism to eliminate head-of-line blocking: basic RECN, enhanced RECN and FBCIM.
 
-\subsection{Technical terms}\label{S:terms}
+\subsection{Technical Terms}\label{S:terms}
 This paper uses technical terms from the domain of computer networks. Some of them are explained here to help the reader.
 
 \begin{description}
@@ -59,7 +59,7 @@ This paper uses technical terms from the domain of computer networks. Some of th
 
 \end{description}
 
-\subsection{Head-of-line blocking (HOL)}\label{S:hol_blocking} Head-of-line blocking is a phenomenon that appears in buffered network switches. A switch is usually made of buffered input ports, a switch fabric and buffered output ports. Because of the FIFO nature of the input buffers and switch design, the switch fabric can only switch the packets at the head of the buffer per cycle. HOL arises when packets arriving at different input ports are destined for the same output port. If the HOL packet of a certain buffer at the input cannot be switched to an output port because of contention, the rest of the packets in that buffer are blocked by that Head-of-Line packet. HOL blocking can limit the throughput of switches up to 58.6\% of its peak value~\cite{hol_thoughput}. Figure \ref{fig:hol} illustrates a network switch with input buffers that suffers from HOL as two packets are destined for the same output port, needlessly blocking the packets behind them in the input buffer.
+\subsection{Head-of-line Blocking (HOL)}\label{S:hol_blocking} Head-of-line blocking is a phenomenon that appears in buffered network switches. A switch is usually made of buffered input ports, a switch fabric and buffered output ports. Because of the FIFO nature of the input buffers and switch design, the switch fabric can only switch the packets at the head of the buffer per cycle. HOL arises when packets arriving at different input ports are destined for the same output port. If the HOL packet of a certain buffer at the input cannot be switched to an output port because of contention, the rest of the packets in that buffer are blocked by that Head-of-Line packet. HOL blocking can limit the throughput of switches up to 58.6\% of its peak value~\cite{hol_thoughput}. Figure \ref{fig:hol} illustrates a network switch with input buffers that suffers from HOL as two packets are destined for the same output port, needlessly blocking the packets behind them in the input buffer.
 
 \begin{figure}[ht]
 	\centering
@@ -199,18 +199,19 @@ Flow-Based Implicit Congestion Management (FBICM) was developed in order to brid
 \begin{list}{\arabic{qcounter}.~}{\usecounter{qcounter}}
 \item Congested points are not addressed by means of explicit routes. Instead, FBICM identifies congested points implicitly, by keeping track of the different flows passing through these points.
 \item Congested packets are not identified as packets following an explicit route to a congested point, but as packets belonging to flows involved in a congested situation.
-\item Congestion information is associated to destinations where as in RECN it is associatedto internal network points.
+\item Congestion information is associated to destinations where as in RECN it is associated
+to internal network points.
 \end{list}
 
 For a detailed description of FBCIM, including switch architecture and operation examples, please refer to~\cite{paper3}. The paper further describes how implicit information about congested points can be stored and propagated (once congestion is detected) without requiring explicit routes, and how packets belonging to congested flows can be identified taking into account just their destination.
 
-\section{Performance evaluation}\label{S:performance}
+\section{Performance Evaluation}\label{S:performance}
 
 The original performance analysis of basic RECN was revealed in~\cite{paper2}, the improvements introduced by the enhanced RECN in~\cite{paper1} and the original authors of FBCIM uncovered their benchmark results in~\cite{paper3}. All three used a custom developed detailed event-driven simulator that allowed them to model the network at the register transfer level. For a thorough description of the simulator we recommend section 5.1 of~\cite{paper1}.
 
 As all three papers elaborate their performance evaluation to a great detail, we only present the general facts and highlight some interesting outcomes.
 
-\subsection{RECN performance}\label{S:recn_perf}
+\subsection{RECN Performance}\label{S:recn_perf}
 
 RECN was tested with two different scenarios: using well-defined synthetic traffic patterns and using I/O traces provided by Hewlett-Packard Labs\footnote{HP Storage Systems Program, \url{http://www.hpl.hp.com/research/ssp/software/}.}. 
 
@@ -236,7 +237,7 @@ Figure~\ref{fig:recn_perf_2} highlights a situation where the enhancements propo
 
 Further test in~\cite{paper2} reveal that for large networks (${2048 \times 2048}$ MINs) the effects of the enhanced RECN are even more pronounced. Again, the interested reader caring for the full picture should consult the entire results.
 
-\subsection{FBCIM performance}\label{S:fbcim_perf}
+\subsection{FBCIM Performance}\label{S:fbcim_perf}
 
 The evaluation of FBCIM in~\cite{paper3} states that maximum performance is achieved by FBICM regardless of network size or traffic pattern, even in congestion situations. Virtual Output Queues at network level (VOQNet) obtains similar results than FBICM, but requires far more resources, especially in large networks. VOQSw consumes similar resources than FBICM, but its performance is poor in hot-spot traffic situations, regardless of network size. As can be expected, results for FBICM are similar to the RECN ones, but in a different interconnect context. We refer to~\cite{paper3} for the full evaluation.
 
