@@ -63,7 +63,7 @@ This paper uses technical terms from the domain of computer networks. Some of th
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics[width=0.50\textwidth]{hol_blocking.pdf}
+		\includegraphics[width=0.50\textwidth]{figures/hol_blocking.pdf}
 		\caption{Head-of-line blocking}
 		\label{fig:hol}
 \end{figure}
@@ -94,7 +94,7 @@ The traditional view of congestion trees is that the congestion grows from the r
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics{congestion_dynamics.pdf}
+		\includegraphics{figures/congestion_dynamics.pdf}
 		\caption{Different dynamic formations of trees. Speedup is two. (a) Traditional view about the formation of a congestion tree, (b) Different locations (ingress and egress) where congestion is detected for one tree, and (c) the root switch moves downstream.}
 		\label{fig:congestion_dynamics}
 \end{figure}
@@ -107,7 +107,7 @@ The formation of a congestion tree is different depending on the number of incom
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics{speedup_effect.pdf}
+		\includegraphics{figures/speedup_effect.pdf}
 		\caption{HOL blocking within a switch with different speedups and different flows.}
 		\label{fig:speedup_effect}
 \end{figure}
@@ -148,7 +148,7 @@ Figure~\ref{fig:cam} shows the CAM structure required to store path information 
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics[scale=1.2]{cam.pdf}
+		\includegraphics[scale=1.2]{figures/cam.pdf}
 		\caption{CAM structure.}
 		\label{fig:cam}
 \end{figure}
@@ -167,7 +167,7 @@ The first enhancement is allowing RECN to detect congestion at switch ingress po
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics[scale=1.2]{recn1.pdf}
+		\includegraphics[scale=1.2]{figures/recn1.pdf}
 		\caption{Mechanism for detecting and handling congestion at the ingress side: (a) Queue status at the detection moment (b) Queue status after detection.}
 		\label{fig:recn1}
 \end{figure}
@@ -176,7 +176,7 @@ The first enhancement is accomplished by replacing the normal queue at each ingr
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics{recn2.pdf}
+		\includegraphics{figures/recn2.pdf}
 		\caption{Basic RECN treatment for (a) more specific and (b) less specific notifications.}
 		\label{fig:recn2}
 \end{figure}
@@ -219,7 +219,7 @@ Figure~\ref{fig:recn_perf_1} shows interesting results for basic RECN, enhanced 
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics[scale=1.5]{recn_perf_1.pdf}
+		\includegraphics[scale=1.5]{figures/recn_perf_1.pdf}
 		\caption{Network throughput with 1.5 speedup for RECN and VOQsw}
 		\label{fig:recn_perf_1}
 \end{figure}
@@ -230,7 +230,7 @@ Figure~\ref{fig:recn_perf_2} highlights a situation where the enhancements propo
 
 \begin{figure}[ht]
 	\centering
-		\includegraphics[scale=1.5]{recn_perf_2.pdf}
+		\includegraphics[scale=1.5]{figures/recn_perf_2.pdf}
 		\caption{Network throughput without speedup for SAN traces.}
 		\label{fig:recn_perf_2}
 \end{figure}
