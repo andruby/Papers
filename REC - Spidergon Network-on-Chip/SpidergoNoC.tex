@@ -1,7 +1,7 @@
 % !TEX encoding = UTF-8 Unicode
 
 %% Document Details
-\newcommand{\docTitle}{Spidergon Network-on-Chip}
+\newcommand{\docTitle}{The Spidergon Network-on-Chip}
 \newcommand{\docAuthor}{Andrew Fecheyr Lippens}
 \newcommand{\docDate}{\today}
 \newcommand{\docSubject}{Redes en Chip}
@@ -27,37 +27,62 @@
 
 \section{Introduction}\label{C:intro}
 	
-	A network-on-chip or NoC has become one of the key components in digital chips. As the number of components and transistors per chip grows continuously, most chips have become multi-core. These chips consist of a number of separate cores, often with fixed-function accelerators, memory arrays and input/output units.
+A network-on-chip or NoC has become one of the key components in digital chips. 
+As the number of components and transistors per chip grows continuously, most chips have become multi-core. 
+These chips consist of a number of separate cores, often with fixed-function accelerators, memory arrays and input/output units.
 		
-	Historically buses or crossbar switches were used to connect the functional components of a chip. Above four cores, however, the limited bandwidth of a bus becomes a major limitation, and above 8 or 16 cores, crossbar switches become very expensive. Only a NoC provides the scalability needed for emerging multicore chips. The NoC bounds the performance potential of these chips and accounts for a substantial fraction of the power and area consumption.
+Historically buses or crossbar switches were used to connect the functional components of a chip. 
+Above four cores, however, the limited bandwidth of a bus becomes a major limitation, and above 8 or 16 cores, crossbar switches become very expensive. 
+Only a NoC provides the scalability needed for emerging multicore chips. 
+The NoC bounds the performance potential of these chips and accounts for a substantial fraction of the power and area consumption.
 
 \subsection{Technical Terms}\label{S:terms}
-	This paper uses technical terms from the domain of computer networks. Some of them are explained here to help the reader.
+	
+This paper uses technical terms from the domain of computer networks. 
+Some of them are explained here to help the reader.
 
 \begin{description}
 
 \item[System on Chip (SoC)] 
-	refers to the integration of all components of a computer or electronic system into a single integrated circuit (chip).\cite{wikiSoC}
+	
+refers to the integration of all components of a computer or electronic system into a single integrated circuit (chip).\cite{wikiSoC}
+	
+\item[A Network on Chip (NoC)] 
+
+is a packet-switched on-chip micronetwork. 
+It is the natural evolution of traditional circuit-switched bus solutions. 
 	
 \item[An Interconnect Processing Unit (IPU)] 
-	is essentially an on-chip communication network with hardware and software components which jointly implement key functions of different SoC programming models through a set of communication and synchronization primitives and provide low-level platform services to enable advanced features in modern heterogeneous applications on a single die.\cite{coppola2008design}
+	
+is a configurable and extensible communication component that implements system services and core communication. 
+It is essentially an on-chip communication network with hardware and software elements which jointly implement key functions of different SoC programming models through a set of communication and synchronization primitives and provide low-level platform services to enable advanced features in modern heterogeneous multi-core SoCs.\cite{coppola2008design}
 
-\item[A Chip multiprocessor (CMPs)] is a multi-core processor in which the distinct cores are integrated onto a single integrated circuit die.
+\item[A Chip multiprocessor (CMPs)] 
+
+is a multi-core processor in which the distinct cores are integrated onto a single integrated circuit die.
 
 \end{description}
 
-\section{Bus vs. Network-on-Chip}\label{C:busvsnoc}
+\subsection{Bus vs. Network-on-Chip}\label{S:busvsnoc}
 
-\section{Spidergon Topology}\label{C:topology}
+\section{Spidergon STNoC}\label{S:stnoc}
+
+\subsection{Spidergon Topology}\label{S:topology}
+
+The proprietary Spidergon topology provides an interesting price/performance trade-off for SoC devices. 
+In the Spidergon topology, all of the IP blocks are arranged in a ring where each IP block is connected to its clockwise and its counter-clockwise neighbour and directly to its diagonal counterpart in the network. 
+This allows the routing algorithm to minimise the number of nodes that a data packet has to traverse before reaching its destination. 
+A particularly important advantage is that the functional diagram (shown below on the left of figure \ref{fig: topology} for a network of 16 nodes) corresponds to a simple planar implementation (shown on the right side of figure \ref{fig: topology}) in which the wiring only needs to cross itself at one point. This is a key benefit in delivering high price/performance. \cite{STMicroelectronics2005}
+
 	\begin{figure}[ht]
 	\centering
 		\includegraphics[width=0.75\textwidth]{topology3}
-		\caption{Equivalent representation of Spidergon STNoC for ${N}$ = 16}
+		\caption{Equivalent representations of the Spidergon topology for ${N}$ = 16}
 		\label{fig: topology}
 	\end{figure}
 
 \section{Conclusion}\label{S:conclusion}
-	\todo
+	\todo[write a conclusion]
 
 \bibliographystyle{plain}
 \bibliography{spidergon}
