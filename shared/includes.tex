@@ -4,7 +4,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage[pdftex]{graphicx}
+\graphicspath{{./figures/}}
 \usepackage{fancyhdr}
+\usepackage{color}
 \usepackage{url}
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 \usepackage{geometry}
@@ -12,7 +14,13 @@
 \usepackage[pdftex,bookmarks=true,pdfborder={0 0 0},pdfauthor={\docAuthor},pdftitle={\docTitle},pdfsubject={\docSubject}]{hyperref}
 \geometry{a4paper}
 
+%%% Add some whitespace between paragraphs
+\addtolength{\parskip}{0.5\baselineskip}
+
 %% Set the document details
 \title{\docTitle}
 \author{\docAuthor}
 \date{\docDate}
+
+%% Define some custom functions
+\newcommand{\todo[1]}{\textcolor{red}{TODO:} #1 }
