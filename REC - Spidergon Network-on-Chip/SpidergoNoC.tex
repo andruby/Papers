@@ -23,6 +23,9 @@
 \begin{tableofcontents}
 \end{tableofcontents}
 
+%%% Add some whitespace between paragraphs
+\addtolength{\parskip}{0.5\baselineskip}
+
 \newpage
 
 \section{Introduction}\label{C:intro}
@@ -76,16 +79,30 @@ They are often used as building blocks in SoC designs.
 
 SoC communication has traditionally been done using on-chip busses. 
 A diagram of an early bus architecture is depicted on figure \ref{fig:soc_bus}. 
-This allowed a designer of an early SoC to select IP blocks, place them onto the silicon, and connect them together with a standard on-chip bus \cite{furber2005future}.
+This allowed designers of early SoCs to select IP blocks, place them onto the silicon, and connect them together with a standard on-chip bus.
 
 	\begin{figure}[ht]
 	\centering
 		\includegraphics[width=0.50\textwidth]{soc_bus}
 		\caption{Early SoC structure based on a single shared bus}
 		\label{fig:soc_bus}
-	\end{figure}
+	\end{figure} 
 
-Examples of more modern on-chip buses include ST Microelectronics' STBus \cite{scandurra2002stbus}, ARM's AMBA AHB and IBM's Core-connect \cite{ryu2001comparison}.
+Buses are well understood and have been successfully implemented in many complex SoCs focusing on both application-based and processor-specific features, thus providing compatibility with most available IP and processor cores, and SoC communication requirements. Examples of more modern on-chip buses include ST Microelectronics' STBus~\cite{scandurra2002stbus}, ARM's AMBA AHB and IBM's Core-connect \cite{ryu2001comparison}.
+
+However, buses do not scale well. With the rapid rise in the number of blocks to be connected and the
+increase in performance demands, today's SoCs cannot be built around a single bus. Instead, complex hierarchies of buses are sometimes used, with sophisticated protocols and multiple bridges between them.
+Communication between two remote blocks can go via several buses, and every section of every path must be carefully verified \cite{furber2005future}. 
+
+Moreover, the increase in the number of connected IP and processor cores causes the bus to become a communication bottleneck due to sharing of aggregate bandwidth by all attached units, and worsens arbiter delay, thus introducing variation, limiting scalability and making the arbiter instance-specific. Additional concerns regarding reachable clock frequency and time closure arise, since every bus transaction involves all connected cores and unnecessarily consumes significant power~\cite{coppola2008design}.
+
+
+	\begin{figure}[ht]
+	\centering
+		\includegraphics[width=1.0\textwidth]{soc_noc}
+		\caption{SoC equipped with a Network-on-Chip}
+		\label{fig:soc_noc}
+	\end{figure} 
 
 \section{Spidergon STNoC}\label{C:stnoc}
 
@@ -94,7 +111,7 @@ Examples of more modern on-chip buses include ST Microelectronics' STBus \cite{s
 The proprietary Spidergon topology provides an interesting price/performance trade-off for SoC devices. 
 In the Spidergon topology, all of the IP blocks are arranged in a ring where each IP block is connected to its clockwise and its counter-clockwise neighbour and directly to its diagonal counterpart in the network. 
 This allows the routing algorithm to minimise the number of nodes that a data packet has to traverse before reaching its destination. 
-A particularly important advantage is that the functional diagram (shown below on the left of figure \ref{fig:topology} for a network of 16 nodes) corresponds to a simple planar implementation (shown on the right side of figure \ref{fig:topology}) in which the wiring only needs to cross itself at one point. This is a key benefit in delivering high price/performance. \cite{STMicroelectronics2005}
+A particularly important advantage is that the functional diagram (shown below on the left of figure \ref{fig:topology} for a network of 16 nodes) corresponds to a simple planar implementation (shown on the right side of figure \ref{fig:topology}) in which the wiring only needs to cross itself at one point. This is a key benefit in delivering high price/performance~\cite{STMicroelectronics2005}.
 
 	\begin{figure}[ht]
 	\centering
