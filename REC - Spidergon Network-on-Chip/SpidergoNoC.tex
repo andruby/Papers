@@ -106,9 +106,20 @@ Moreover, the increase in the number of connected IP and processor cores causes 
 
 \section{Spidergon STNoC}\label{C:stnoc}
 
+As a first attempt at designing a configurable IPU, Spidergon STNoC IPU technology consists of a flexible, pseudo-regular on-chip communication network implementing a set of customizable low-level platform services and a set of communication primitives.
+The Spidergon STNoC IPU is a software programmable on-chip communication network that enables system designers to extend communication primitives. 
+These communication primitive extensions are then automatically synthesized, placed, and routed into the Spidergon STNoC communication network. 
+The communication network leverages graph properties of the Spider- gon regular topology discussed, while matching heterogeneity of Multicore SoCs through software programmability concepts, application-specific hardware configurability and extensibility.
+Existing NoC architectures are either based on a fixed regular network topology, or they are topology-independent, i.e. they can be customized to a particular application-specific communication graph. 
+The Spidergon STNoC topology fills the gap between these two approaches, trading off regularity with customizability; for this reason, it is sometimes called a pseudo-regular topology\cite{coppola2008design}. 
+Using this concept, NoC topology becomes an architectural parameter that can be configured depending on the communication patterns exhibited by the application. 
+Moreover, in order to address Multicore application requirements for feature-rich devices, e.g. speech processing, video, GPS, security, and mobility, Spidergon STNoC technology provides a set of low-level platform services. 
+The most important services defined in Spidergon STNoC are security, power management, and QoS. 
+These services can be instantiated depending on the real target application and may be augmented by customer-specified services.
+
 \subsection{Spidergon Topology}\label{S:topology}
 
-The proprietary Spidergon topology provides an interesting price/performance trade-off for SoC devices. 
+The Spidergon topology provides an interesting price/performance trade-off for SoC devices. 
 In the Spidergon topology, all of the IP blocks are arranged in a ring where each IP block is connected to its clockwise and its counter-clockwise neighbour and directly to its diagonal counterpart in the network. 
 This allows the routing algorithm to minimise the number of nodes that a data packet has to traverse before reaching its destination. 
 A particularly important advantage is that the functional diagram (shown below on the left of figure \ref{fig:topology} for a network of 16 nodes) corresponds to a simple planar implementation (shown on the right side of figure \ref{fig:topology}) in which the wiring only needs to cross itself at one point. This is a key benefit in delivering high price/performance~\cite{STMicroelectronics2005}.
@@ -119,6 +130,90 @@ A particularly important advantage is that the functional diagram (shown below o
 		\caption{Equivalent representations of the Spidergon topology for ${N}$ = 16}
 		\label{fig:topology}
 	\end{figure}
+
+Topologies with increased connectivity, such as 2D mesh, provide very good theoretical metrics, but in most cases, these features cannot be fully exploited due to the nature of communication traffic in Multicore SoC applications. 
+On the other hand, simple topologies, such as rings, are cost-effective in terms of manufacturing cost, but deliver relatively poor performance, especially as the number of connected cores increases. Spidergon tries to strike a balance in this tradeoff. 
+
+Compared to complex topologies, Spidergon offers a small number of links and simple implementation. For current, realistic NoC configurations with up to 60 nodes, the proposed Spidergon graph has a smaller number of edges and a competitive network diameter with respect to fat-tree or 2D mesh topologies.
+
+Figure \ref{fig:different_topologies} illustrates different families of topologies supported by the Spidergon STNoC. 
+These topologies are essentially degree 2 or 3 Spidergon subgraphs that range from rings and simple spanning trees to irregular chordal rings. 
+Depending on application traffic requirements and especially mapping of master and slave agents, connection paths can be removed if never used and cross connections customized to provide shortcuts between any pair of nodes in the ring.
+
+	\begin{figure}[ht]
+	\centering
+		\includegraphics[width=0.75\textwidth]{different_topologies}
+		\caption{Different topologies supported by Spidergon STNoC}
+		\label{fig:different_topologies}
+	\end{figure}
+
+\subsection{Topology Comparison}\label{S:metrics}
+
+Each NoC topology offers a different set of tradeoffs in terms of metrics, such as:
+\begin{itemize}
+\item Vertex symmetry, which affects routing or scheduling cost and performance,
+\item Network degree, which affects the operating frequency and the complexity of the routers,
+\item Network extendibility, which should be as low as possible to maximize flexibility in Multicore designs, and 
+\item Average distance between nodes.
+\end{itemize}
+
+Table \ref{tab:metrics} presents a summary of static topological metrics for three typical NoC topologies: Ring, Spidergon and ${m \times n}$ Mesh.
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{|p{1.1in}|p{1.1in}|p{1.4in}|p{1.3in}|}
+	\hline
+	\textbf{Property} & \textbf{Ring} & \textbf{Spidergon} & \textbf{2D ${n \times m}$ Mesh} \\ \hline 
+	\textbf{Symmetry} & both & vertex & no \\ \hline
+	\textbf{Degree} & 2 & 3 & 4 \\ \hline
+	\textbf{Links} & ${2N}$ &  ${3N}$ & ${4mn - 2m - 2n}$  \\ \hline
+	\textbf{Extendibility} & 1 & 2 & min${(m,n) \geq 2 }$ \\ \hline
+	\textbf{Node \mbox{connectivity}} & 2 & 3 & 2 \\ \hline
+	\textbf{Diameter} &${N/2}$ & ${N/4}$ & ${m + n - 2}$ \\ \hline
+	\textbf{Average \mbox{distance}} 
+		& if ${N}$ even: \par
+			\hspace{2mm} ${N/4}$ \par 
+		if ${N}$ odd: \par
+			\hspace{2mm} ${(N^2-1)/4N}$
+		& if ${N = 4n}$: \par 
+			\hspace{2mm} ${(2n^2 + 2n - 1)/N}$ 
+		if ${N = 4n +2}$: \par 
+			\hspace{2mm} ${(2n^2 + 4n + 1)/N}$
+		& \vspace{1mm} $\frac{\displaystyle(m + n)(mn - 1)}{\displaystyle3mn}$\\ \hline
+	\textbf{Bisection width} & 4 
+		& if ${N = 4n}$: 8 \par
+		if ${N = 4n +2}$: 10
+		&  if max(${m}$,${n}$) even: \par
+			\hspace{2mm} 2min(${m}$,${n}$)  \par 
+		if max(${m}$,${n}$) odd: \par
+			\hspace{2mm} 2min(${m}$,${n}$) + 2 \\ \hline
+\end{tabular}
+\caption{Theoretical metrics for different topologies}\label{tab:metrics}
+\end{center}
+\end{table}
+
+The data shows that for ${N < 60}$, the Spidergon topology despite its constant bisection is very competitive. 
+Due to its higher connectivity, the Spidergon topology always outperforms Rings in terms of diameter and average distance. Spidergon also competes favorably or outperforms 2D Mesh, although outcomes depend on network size. 
+In fact, while Spidergon properties scale linearly with the network size, 2D Mesh behavior is quite irregular. 
+This irregularity is a severe bottleneck in Multicore SoC design, since it complicates design space exploration in terms of cost-performance tradeoffs. For example, a 22 node 2D mesh has smaller diameters and average distance metrics than a 24 node 2D mesh.
+
+\subsection{Switching Strategy}\label{S:switching}
+
+The switching strategy refers to how a packet traverses the route. 
+More specifically, the switching technique determines how a message is fragmented and transmitted from an input of the on-chip network to an output resource by defining how channels and possible buffers along the path are allocated. 
+There are four types of switching techniques:
+\begin{itemize}
+\item Circuit switching,
+\item Store-and-forward,
+\item Wormhole, and 
+\item Virtual Cut-through.
+\end{itemize}
+
+Spidergon STNoC adopts wormhole routing, which is nowadays commonly used in NoC design. 
+Due to this switching technique, the Spidergon STNoC router has a simple architecture, occupies a small area, and is extremely fast in terms of operating frequency.
+
+\section{Evaluation}\label{C:evaluation}
+	\todo[look for good evaluation resources]
 
 \section{Conclusion}\label{S:conclusion}
 	\todo[write a conclusion]
