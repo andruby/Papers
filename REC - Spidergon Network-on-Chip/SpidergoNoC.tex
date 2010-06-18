@@ -283,12 +283,66 @@ Thus, Spidergon STNoC IPU consists of three hardware modules called link, router
 
 \subsection{Packet Format}\label{S:packet_format}
 
-
+The Spidergon STNoC network interface is defined so that multiple split transaction bus protocols could be encapsulated by the same network layer. 
+Thus, the network layer payload consists of the overall transport layer packet, i.e. its header together with the payload. 
+The network layer packet header contains an end-to-end QoS field and routing information. 
+More specifically, routing information encodes a complete end-to-end path to arrive to the destination.
+ In Spidergon STNoC, routing information is based on a destination address identifier and directional information. 
+ Exploiting the topological properties of Spidergon, the address identifier is 8 bits and the directional information is encoded in only 2 bits, independent of the number of nodes.
+ 
+According to wormhole switching, Spidergon STNoC packets are split into one or more flits. 
+The flit size is selected according to bandwidth requirements in the range of 16 to 512 bits; notice that flit sizes between 32 and 128 bits are the most appropriate for mapping requirements of most existing architectures. 
+Depending on the packet and flit size, the network layer packet is decomposed into a variable number of flits, each characterized by a tag specifying if the flit is at the beginning, middle, or end of a packet.
 
 \subsection{Routing Algorithms}\label{S:routing}
 
-\section{Evaluation}\label{C:evaluation}
-	\todo[look for good evaluation resources]
+Spidergon STNoC adopts oblivious routing. 
+Several alternative routing algorithms are proposed, so that the application user can select the best solution for a specific network topology instance and application traffic scenario.
+
+The communication path is completely determined by the source and destination address and the route is fixed when packets enter in the network. 
+The choice for deterministic routing guarantees in-order end-to-end communication at network level, hence avoiding costly flit reordering at packet reception. 
+
+Although Spidergon STNoC routing is not adaptive, i.e. selection of the routing path is fixed upon packet injection at the network boundary, it is programmable by supporting efficient software control of packet routes. 
+A routing function executed at packet injection time associates a particular network path to the packet depending on the source and destination address. 
+This function can be changed during runtime through software reconfiguration, fully exploiting topological path redundancy.
+
+Packet routing decisions are carried out using only local information available at each network node. Each router has a unique address ${i}$ in the network, ${0 \le i < N}$, where ${N}$ is the network size. Since the routing algorithm is local, and the Spidergon topology is vertex- and edge-transitive, the routing algorithm is equivalent at any node.
+
+When a router receives the first flit, i.e. the network header of a new packet, the forwarding path is computed. 
+The Spidergon STNoC routing algorithm compares the network address of the current router to that of the destination router whos address is encoded in the packet header. 
+If the two addresses match, flits are routed to the local port of the router. 
+Otherwise, an attempt is made to forward the flit towards a clockwise or counter-clockwise direction along the ring, an across link, or in a hierarchical way to another instance of the Spidergon topology family.
+
+	\begin{figure}[ht]
+	\centering
+		\includegraphics[width=0.85\textwidth]{across_routing}
+		\caption{Across-First routing paths in the Spidergon NoC for ${N = 12}$}
+		\label{fig:routing1}
+	\end{figure}
+
+The first algorithm, called Across-First, moves packets along the ring, in the proper direction, to reach nodes which are closer to the source node, and uses the across link only once at the beginning for destinations that are far away. 
+As an example, Figure~\ref{fig:routing1} shows routing paths with the Across-First deterministic shortest-path Spidergon routing algorithm on a 12-node Spidergon STNoC. 
+The clockwise direction is indicated with R (right), the counter-clockwise is L (left) and the across link connection is A (across). 
+
+The Across-First routing relies on a simplified form of source-based routing, since the entire path can be encoded in the packet header using the following two observations. 
+First, the Across communication link is selected at most once, always at the beginning of each packet route. 
+Second, when the packet starts moving along the ring, it follows the same direction (right or left) for the entire path. 
+According to these properties, only packets arriving from the local resource or from the across port need to be considered for routing. 
+All other packets continue to move in the same direction until they reach their destination.
+
+Across-First routing in Spidergon requires a fixed size of directional information (2 bits) that specifies the packet’s path through the network: right, left or exploiting the across direction. 
+For instance, in Figure~\ref{fig:routing1}, when the destination is 5, the first hop uses the across link and the direction field is set to “across-then-left” value, that indicates the cross as first hop and then left as ring direction. 
+When destination is 6, direction is still “across-then-left”, but left is not used since the packet arrives at destination before moving on the ring.
+
+A obvious alternative to the Across-First routing is Across-Last routing, which is similar to Across-First but where the Across link is taken on the last hop. 
+Both routing algorithms are shortest-path. 
+However, Spidergon STNoC also allows routing in other ways. 
+For instance, packets may progress along the ring without using the cross connections. 
+In this case, the path is not optimal, but it could help distribute the load of request/response flows depending on the specific application requirements.
+
+\subsection{The Router}\label{S:router}
+
+
 
 \section{Conclusion}\label{S:conclusion}
 	\todo[write a conclusion]
