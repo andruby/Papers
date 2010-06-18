@@ -349,10 +349,69 @@ In this case, the path is not optimal, but it could help distribute the load of 
 
 \subsection{The Router}\label{S:router}
 
+The Router component is responsible for implementing the network layer of the Spidergon STNoC protocol stack. 
+It must ensure a reliable packet transfer through the on-chip network, according to a proper QoS policy. 
+From a very high-level perspective, a router is based on a crossbar switch with a given number of input and output ports, and proper control logic. 
+The core functionality of the router consists of deciding the output port where to forward the flit (after arbitrating possible conflict situations) and managing link-level flow control.
 
+	\begin{figure}[ht]
+	\centering
+		\includegraphics[width=0.55\textwidth]{router}
+		\caption{Spidergon STNoC router with upstream (blue) and downstream (yellow) interfaces}
+		\label{fig:router}
+	\end{figure}
+
+As shown in Figure~\ref{fig:router}, each Spidergon STNoC router implements wormhole routing and communicates through bidirectional links to a local NI, three neighbor routers in the right, left and across directions, and possibly another Spidergon STNoC network through a hierarchical connection.
+
+The Spidergon STNoC router is highly configurable, exposing its internal modular micro-architecture and allowing great flexibility in overall NoC design space exploration. 
+A set of router parameters can be tuned at instantiation time to match functionality, performance and cost requirements.
+
+A first parametric option in the router is the flit size for each input/output link. 
+These flit sizes must be checked with respect to other connected routers and NIs, to guarantee correct configuration. 
+When a link is not used at all it can be removed. 
+The size of all buffer resources in the router is also configurable. This is especially important for low cost implementations when buffering can be selectively reduced depending on traffic type and performance requirements. 
+Moreover, alternative queue techniques can be selected to increase global network performance, e.g. when lots of traffic is directed to a specific resource.
+
+The Spidergon STNoC router has no externally accessible control registers. 
+Its operation depends only on network configuration parameters defined upon instantiation and cannot be changed by software during runtime. 
+This saves router area and programming complexity by avoiding switch initialization logic. 
+Moreover, Spidergon STNoC services do not require any additional topological information since on-the-fly reconfiguration is performed efficiently at the boundary of the network. 
+This implies simpler on-chip network design, while still enabling efficient on-the-fly tuning capability.
+
+A low latency router is mandatory for ensuring fast communication. 
+Spidergon STNoC router implementation proved to be a very costeffective solution, allowing clock frequencies up to 1GHz in 65nm ST technology, with a 2-cycle latency, and a per link bandwidth of 8GB/sec, assuming a 64-bit data path. Thus, the overall bandwidth for the router is 40GB/sec.~\cite{coppola2008design}
+
+\subsection{Buffer Management}\label{S:buffer}
+
+The Spidergon STNoC router uses input and output FIFOs with the primary goal to have independent control over efficient link transmission and global network throughput, while at the same time minimizing buffer requirements. 
+Since buffer capacity required for flow control is independent of that for absorbing suspended traffic at each router, different buffer management techniques are provided. 
+An output FIFO can be allocated for each output port, reducing head-of-line blocking. 
+These queues are shared among input flows to avoid costly time/space speedup factors. 
+Multiple queues for each incoming flow can be eventually instantiated in case of high traffic to a local node to avoid many conflicts for packets that must be ejected from the network. 
+FIFOs have bypass capabilities to reduce the pipeline, while an advanced output scheme supports virtual channels and at the same time offers a retiming capability.
+
+\subsection{Quality of Service}\label{S:qos}
+
+As far as bandwidth is concerned, Spidergon STNoC supports the Fair Bandwidth Allocator (FBA) QoS mechanism. 
+It is an end-to-end service that guarantees fair and programmable weighted bandwidth allocation on top of a distributed network, just by tuning the injection points. 
+Similar to routing, FBA is a two-step QoS scheme that provides all necessary information in the network header, limiting router behavior to simple operations. 
+Configuration is provided through NI registers that are programmable by the software framework (see Figure~\ref{fig:architecture}) without impacting network routers. 
+Thus, for example, routing can change without any effort by re-computing the path followed by a flow and corresponding QoS parameters along this new path. 
+Moreover, FBA is cost efficient, i.e. the router implements a simple arbiter, without complex and slow logic. 
+Finally, the adopted QoS scheme follows a unique structured approach, whose flexibility is achieved by simple software control, without changing the hardware implementation; the same scheme can degenerate into simple schemes, such as round-robin, LRU, or priority-based.
 
 \section{Conclusion}\label{S:conclusion}
-	\todo[write a conclusion]
+
+The Spidergon STNoC on-chip interconnect technology is a first attempt at designing an IPU for an advanced Multicore platform. 
+At a first glance, the Spidergon STNoC IPU is a flexible on-chip communication platform based on a pseudo-regular network infrastructure implementing a set of communication primitives and programmable services for different applications.
+
+We have briefly described the cornerstones of the network architecture, namely topology, switching strategy, packet structure, routing algorithm, buffer management, flow control and QoS support. 
+
+The design of the low-cost Spidergon STNoC architecture follows simple, clean and well-defined communication layering based on three hardware components: a physical communication link, a wormhole router, and a network interface to plug cores, hardware IPs and memories. 
+The fourth module of the Spidergon STNoC platform is the software component which implements IPU services.
+
+Spidergon STNoC leverages the regularity of Spidergon topology, while featuring practical topological customizations. 
+Hence, Spidergon topology is a cost-efficient solution for the embedded SoC market, between a simple and low performance ring and a highly connected mesh.
 
 \bibliographystyle{plain}
 \bibliography{spidergon}
