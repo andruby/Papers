@@ -108,14 +108,24 @@ A packet switched network offers flexibility in topology (see Figure \ref{fig:so
 		\label{fig:soc_noc}
 	\end{figure} 
 
+As shown in Figure \ref{fig:soc_noc}, on-chip interconnects based on point-to-point network topologies can provide scalability and power efficiency.
+In contrast to the bus view, on-chip interconnects are no longer passive components for plugging onto it several cores, but rather active components that provide connectivity and services to cores.
+Socket interfaces are no longer included in the cores, but are implemented in new components, called network interface units (NIs). 
+This provides a clear de-coupling between the external core protocol and internal interconnect communication, while also strengthening modularity, composition and multi-protocol interoperability of connected cores.
+
+Packet-switched networks-on-chip are the clear solution to the problem of complex SoC interconnects, and future developments will see advances in these networks to improve their performance, flexibility, power-efficiency and functionality \cite{furber2005future}. 
+Support for Quality-of-Service (QoS) protocols, fault-tolerance, secure communication and other similar high-level functions will emerge to establish the NoC as the defacto on-chip interconnect technology.
+
 \section{Spidergon STNoC}\label{C:stnoc}
 
-As a first attempt at designing a configurable IPU, Spidergon STNoC IPU technology consists of a flexible, pseudo-regular on-chip communication network implementing a set of customizable low-level platform services and a set of communication primitives.
-The Spidergon STNoC IPU is a software programmable on-chip communication network that enables system designers to extend communication primitives. 
+As a first attempt at designing a configurable Interconnect Processing Unit IPU, the Spidergon STNoC IPU technology consists of a flexible, pseudo-regular on-chip communication network implementing a set of customizable low-level platform services and a set of communication primitives.
+
+The Spidergon STNoC IPU is a software programmable on-chip communication network that enables system designers to extend communication primitives. 
 These communication primitive extensions are then automatically synthesized, placed, and routed into the Spidergon STNoC communication network. 
-The communication network leverages graph properties of the Spider- gon regular topology discussed, while matching heterogeneity of Multicore SoCs through software programmability concepts, application-specific hardware configurability and extensibility.
-Existing NoC architectures are either based on a fixed regular network topology, or they are topology-independent, i.e. they can be customized to a particular application-specific communication graph. 
-The Spidergon STNoC topology fills the gap between these two approaches, trading off regularity with customizability; for this reason, it is sometimes called a pseudo-regular topology\cite{coppola2008design}. 
+The communication network leverages graph properties of the Spidergon regular topology, while matching heterogeneity of Multicore SoCs through software programmability concepts, application-specific hardware configurability and extensibility.
+
+Other NoC architectures are often based on a fixed regular network topology, or they are topology-independent, i.e. they can be customized to a particular application-specific communication graph. 
+The Spidergon STNoC topology fills the gap between these two approaches, trading off regularity with customizability; for this reason, it is sometimes called a pseudo-regular topology~\cite{coppola2008design}. 
 Using this concept, NoC topology becomes an architectural parameter that can be configured depending on the communication patterns exhibited by the application. 
 Moreover, in order to address Multicore application requirements for feature-rich devices, e.g. speech processing, video, GPS, security, and mobility, Spidergon STNoC technology provides a set of low-level platform services. 
 The most important services defined in Spidergon STNoC are security, power management, and QoS. 
