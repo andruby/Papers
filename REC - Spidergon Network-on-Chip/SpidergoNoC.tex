@@ -78,7 +78,7 @@ They are often used as building blocks in SoC designs.
 \subsection{Bus vs. Network-on-Chip}\label{S:busvsnoc}
 
 SoC communication has traditionally been done using on-chip busses. 
-A diagram of an early bus architecture is depicted on figure \ref{fig:soc_bus}. 
+A diagram of an early bus architecture is depicted in figure \ref{fig:soc_bus}. 
 This allowed designers of early SoCs to select IP blocks, place them onto the silicon, and connect them together with a standard on-chip bus.
 
 	\begin{figure}[ht]
@@ -88,14 +88,18 @@ This allowed designers of early SoCs to select IP blocks, place them onto the si
 		\label{fig:soc_bus}
 	\end{figure} 
 
-Buses are well understood and have been successfully implemented in many complex SoCs focusing on both application-based and processor-specific features, thus providing compatibility with most available IP and processor cores, and SoC communication requirements. Examples of more modern on-chip buses include ST Microelectronics' STBus~\cite{scandurra2002stbus}, ARM's AMBA AHB and IBM's Core-connect \cite{ryu2001comparison}.
+Buses are well understood and have been successfully implemented in many complex SoCs focusing on both application-based and processor-specific features, thus providing compatibility with most available IP and processor cores, and SoC communication requirements. 
+Examples of more modern on-chip buses include ST Microelectronics' STBus~\cite{scandurra2002stbus}, ARM's AMBA AHB and IBM's Core-connect \cite{ryu2001comparison}.
 
 However, buses do not scale well. With the rapid rise in the number of blocks to be connected and the
 increase in performance demands, today's SoCs cannot be built around a single bus. Instead, complex hierarchies of buses are sometimes used, with sophisticated protocols and multiple bridges between them.
 Communication between two remote blocks can go via several buses, and every section of every path must be carefully verified \cite{furber2005future}. 
 
-Moreover, the increase in the number of connected IP and processor cores causes the bus to become a communication bottleneck due to sharing of aggregate bandwidth by all attached units, and worsens arbiter delay, thus introducing variation, limiting scalability and making the arbiter instance-specific. Additional concerns regarding reachable clock frequency and time closure arise, since every bus transaction involves all connected cores and unnecessarily consumes significant power~\cite{coppola2008design}.
+Moreover, the increase in the number of connected IP and processor cores causes the bus to become a communication bottleneck due to sharing of aggregate bandwidth by all attached units, and worsens arbiter delay, thus introducing variation, limiting scalability and making the arbiter instance-specific. 
+Additional concerns regarding reachable clock frequency and time closure arise, since every bus transaction involves all connected cores and unnecessarily consumes significant power~\cite{coppola2008design}.
 
+Where bus-based solutions reach their limit, packet-switched networks are expected to take over \cite{dally2001route}. 
+A packet switched network offers flexibility in topology (see Figure \ref{fig:soc_noc}) and trade-offs in the allocation of resources to clients \cite{furber2005future}.
 
 	\begin{figure}[ht]
 	\centering
