@@ -381,7 +381,7 @@ Spidergon STNoC router implementation proved to be a very costeffective solution
 
 \subsection{Buffer Management}\label{S:buffer}
 
-The Spidergon STNoC router uses input and output FIFOs with the primary goal to have independent control over efficient link transmission and global network throughput, while at the same time minimizing buffer requirements. 
+The Spidergon STNoC router can use input and output FIFOs with the primary goal of having independent control over efficient link transmission and global network throughput, while at the same time minimizing buffer requirements. 
 Since buffer capacity required for flow control is independent of that for absorbing suspended traffic at each router, different buffer management techniques are provided. 
 An output FIFO can be allocated for each output port, reducing head-of-line blocking. 
 These queues are shared among input flows to avoid costly time/space speedup factors. 
