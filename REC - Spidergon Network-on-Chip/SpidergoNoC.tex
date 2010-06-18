@@ -16,7 +16,10 @@
 \input{../shared/upv_title}
 
 \begin{abstract}
-	\todo[write an abstract]
+
+As chip designers increasingly move to multicore solutions to improve performace and modularity of designs, self-timed packet-switched networks are poised to take a major role in addressing the complex system design and timing closure problems of future Systems-on-Chip. 
+This paper highlights the benefits of Networks-on-Chip as a natural evolution of common bus-based communication and introduces the Spidergon STNoC interconnect technology by STMicroelectronics. 
+
 \end{abstract}
 
 \setcounter{tocdepth}{2}
@@ -39,7 +42,11 @@ Above four cores, however, the limited bandwidth of a bus becomes a major limita
 Only a NoC provides the scalability needed for emerging multicore chips. 
 The NoC bounds the performance potential of these chips and accounts for a substantial fraction of the power and area consumption.
 
-\todo[introduce Spidergon]
+STMicroelectronics, a leading manufacturer in System-on-Chip (SoC) solutions, has developed a flexible and modular Network-on-Chip (NoC) called the Spidergon STNoC. 
+This paper explores the features of this technology and focusses especially on the network implementation. Although it should only serve as a thorough introduction. 
+
+First a few technical terms are discussed in section~\ref{S:terms}. The evolution from common bus-based communication to network-on-chips is revealed in section~\ref{S:busvsnoc}. 
+Finally, chapter~\ref{C:stnoc} contains the elementary review of the Spidergon STNoC technology. For a more thorough analysis of the platform, Coppola's \emph{``Design of Cost-Efficient Interconnect Processing Units: Spidergon STNoC''}~\cite{coppola2008design} comes highly recommended. It also served as the basis for this paper.
 
 \section{Background}\label{C:background}
 
