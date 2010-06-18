@@ -227,8 +227,65 @@ There are four popular types of switching techniques:
 \item Virtual Cut-through.
 \end{itemize}
 
-Spidergon STNoC adopts wormhole routing, which is nowadays commonly used in NoC design. 
+Spidergon STNoC adopts wormhole routing, which is commonly used in NoC design. 
 Due to this switching technique, the Spidergon STNoC router has a simple architecture, occupies a small area, and is extremely fast in terms of operating frequency.
+
+In wormhole routing packets are split into flits (flow control units) which are sent along the path opened by the header flit in a pipelined way \cite{dally1987deadlock}; at the physical layer, each flit may also consist of several smaller transmission units (usually a few bytes long), called physical units, or phits. 
+With wormhole routing, router resources are normally dedicated to the packet until all flits have been transferred. 
+While both store-and-forward switching strategy and virtual cut-through use per packet flow control, i.e. only the header carries flow control information, with wormhole routing each flit has its unique flow control \cite{dally1987deadlock}. 
+This concept drastically reduces the amount of network buffering to a few flits, since routers do not have to store entire packets. The minimum buffer depth actually depends on link-level flow control and the depth of packet pipelining. 
+Furthermore, similar to virtual cut-through, transmission latency with low network congestion is almost independent of the distance between source and destination \cite{dally1990performance}. 
+However, heavy network contention causes blocked packet flits to remain stored at the network interface and internal routers, which makes wormhole routing more susceptible to deadlock and congestion than virtual cut-through.
+
+Transmission of different packets over a physical link cannot be interleaved or multiplexed freely without additional architecture support. 
+In fact, if the header flit cannot proceed due to link contention, the whole worm of flits is stalled, occupying flit buffers in different routers on the currently constructed network path, while blocking other possible communications. 
+Spidergon STNoC resolves this issue using virtual channels. 
+This requires extra control logic and separate buffers that allow independent packet flows sharing the same physical link to be time multiplexed at flit granularity.
+
+In terms of link-level flow control, the system used in Spidergon STNoC is based on simplified credit mechanisms.
+
+\subsection{Layered Architecture}\label{S:architecture}
+
+As shown in Figure~\ref{fig:architecture}, the Spidergon STNoC IPU has been developed using a vertical layered approach based on a simplified version of the ISO-OSI reference model composed of only 4 layers. 
+All these layers represent independent components that can be examined either separately or in relation to each other.
+
+	\begin{figure}[ht]
+	\centering
+		\includegraphics[width=0.65\textwidth]{architecture}
+		\caption{Spidergon STNoC Architectural Layers}
+		\label{fig:architecture}
+	\end{figure}
+
+\begin{itemize}
+\item 
+\textbf{The physical layer} provides electrical media definitions that establish connection at the bit level among on-chip network resources. 
+This layer determines the number and thickness of electrical wires for connecting together resources, and depending on technology establishes a type of synchronization. 
+It also defines the number of repeater circuits to cope with long wires and corresponding control signals. 
+On top of physical wires and circuits, the Spidergon STNoC link establishes a logical connection between on-chip network resources, through a robust data transmission protocol, through flow control.
+
+\item 
+\textbf{The network layer} is concerned with point-to-point packet routing from an arbitrary sender to an arbitrary receiver through the network topology. 
+This layer implements wormhole routing and manages flit- and packet-level resource allocation and virtual channel and link arbitration.
+
+\item 
+\textbf{The transport layer} hides network topology and link implementation issues, thus establishing efficient end-to-end flow control and source-to-target message communication services to higher layers, including operating system, system software, and application layers. 
+In this layer, data are split or merged into NoC packets, and different processors or hardware blocks can be plugged as an open socket.
+
+\item 
+Operating system, programming models, system software, middleware and application software run on interface wrappers of higher NoC communication layers built upon the transport layer as abstractions of the lower-level communication framework. 
+
+\end{itemize}
+
+With a vertical layered stack approach, decisions taken at different layers are not independent and interact with each other through well-defined interfaces. 
+In Spidergon STNoC design a lot of attention has been placed on how the four architectural layers fit together and which type of issues must be addressed at each layer for designing an efficient and unique IPU. 
+To simplify design, each layer of the stack is implemented by a specific component. 
+Thus, Spidergon STNoC IPU consists of three hardware modules called link, router and network interface, and a software component (called software framework in Figure~\ref{fig:architecture}) that provides a set of communication primitives and low-level platform services.
+
+\subsection{Packet Format}\label{S:packet_format}
+
+
+
+\subsection{Routing Algorithms}\label{S:routing}
 
 \section{Evaluation}\label{C:evaluation}
 	\todo[look for good evaluation resources]
