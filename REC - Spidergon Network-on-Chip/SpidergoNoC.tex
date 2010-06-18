@@ -150,10 +150,6 @@ On the other hand, simple topologies, such as rings, are cost-effective in terms
 
 Compared to complex topologies, Spidergon offers a small number of links and simple implementation. For current, realistic NoC configurations with up to 60 nodes, the proposed Spidergon graph has a smaller number of edges and a competitive network diameter with respect to fat-tree or 2D mesh topologies.
 
-Figure \ref{fig:different_topologies} illustrates different families of topologies supported by the Spidergon STNoC. 
-These topologies are essentially degree 2 or 3 Spidergon subgraphs that range from rings and simple spanning trees to irregular chordal rings. 
-Depending on application traffic requirements and especially mapping of master and slave agents, connection paths can be removed if never used and cross connections customized to provide shortcuts between any pair of nodes in the ring.
-
 	\begin{figure}[ht]
 	\centering
 		\includegraphics[width=0.75\textwidth]{different_topologies}
@@ -161,7 +157,12 @@ Depending on application traffic requirements and especially mapping of master a
 		\label{fig:different_topologies}
 	\end{figure}
 
-\subsection{Topology Comparison}\label{S:metrics}
+However, Spidergon is flexible enough to support different topology configurations. 
+Figure \ref{fig:different_topologies} illustrates different families of topologies supported by the Spidergon STNoC. 
+These topologies are essentially degree 2 or 3 Spidergon subgraphs that range from rings and simple spanning trees to irregular chordal rings. 
+Depending on application traffic requirements and especially mapping of master and slave agents, connection paths can be removed if never used and cross connections customized to provide shortcuts between any pair of nodes in the ring.
+
+\subsection{Comparison with other Topologies}\label{S:metrics}
 
 Each NoC topology offers a different set of tradeoffs in terms of metrics, such as:
 \begin{itemize}
@@ -202,20 +203,23 @@ Table \ref{tab:metrics} presents a summary of static topological metrics for thr
 		if max(${m}$,${n}$) odd: \par
 			\hspace{2mm} 2min(${m}$,${n}$) + 2 \\ \hline
 \end{tabular}
-\caption{Theoretical metrics for different topologies}\label{tab:metrics}
+\caption{Theoretical metrics for different topologies~\cite{coppola2008design}}\label{tab:metrics}
 \end{center}
 \end{table}
 
-The data shows that for ${N < 60}$, the Spidergon topology despite its constant bisection is very competitive. 
-Due to its higher connectivity, the Spidergon topology always outperforms Rings in terms of diameter and average distance. Spidergon also competes favorably or outperforms 2D Mesh, although outcomes depend on network size. 
+The data shows that for ${N < 60}$, the Spidergon topology, despite its constant bisection, is very competitive. 
+Due to its higher connectivity, the Spidergon topology always outperforms Rings in terms of diameter and average distance. 
+Spidergon also competes favorably or outperforms 2D Mesh, although outcomes depend on network size. 
 In fact, while Spidergon properties scale linearly with the network size, 2D Mesh behavior is quite irregular. 
 This irregularity is a severe bottleneck in Multicore SoC design, since it complicates design space exploration in terms of cost-performance tradeoffs. For example, a 22 node 2D mesh has smaller diameters and average distance metrics than a 24 node 2D mesh.
+
+\todo[conclude this chapter]
 
 \subsection{Switching Strategy}\label{S:switching}
 
 The switching strategy refers to how a packet traverses the route. 
 More specifically, the switching technique determines how a message is fragmented and transmitted from an input of the on-chip network to an output resource by defining how channels and possible buffers along the path are allocated. 
-There are four types of switching techniques:
+There are four popular types of switching techniques:
 \begin{itemize}
 \item Circuit switching,
 \item Store-and-forward,
